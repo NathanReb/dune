@@ -108,6 +108,15 @@
  (files   dune-promote.1))
 
 (rule
+ (with-stdout-to dune-release.1
+  (run dune release --help=groff)))
+
+(install
+ (section man)
+ (package dune)
+ (files   dune-release.1))
+
+(rule
  (with-stdout-to dune-rules.1
   (run dune rules --help=groff)))
 

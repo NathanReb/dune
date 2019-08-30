@@ -152,6 +152,7 @@ let all =
   ; Format_dune_file.command
   ; Compute.command
   ; Upgrade.command
+  ; Release.command
   ]
 
 let default =
