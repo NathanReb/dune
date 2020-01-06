@@ -105,6 +105,8 @@ val sandbox :
   -> eval_pred:Dep.eval_pred
   -> t
 
+val to_string : t -> string
+
 type is_useful_to_sandbox =
   | Clearly_not
   | Maybe

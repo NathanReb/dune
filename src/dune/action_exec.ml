@@ -182,6 +182,7 @@ let exec_echo stdout_to str =
   Fiber.return (output_string (Process.Io.out_channel stdout_to) str)
 
 let rec exec t ~ectx ~eenv =
+  Printf.printf "\nAction_exec.exec %s\n%!" (Action.to_string t);
   match (t : Action.t) with
   | Run (Error e, _) -> Action.Prog.Not_found.raise e
   | Run (Ok prog, args) ->
@@ -287,6 +288,8 @@ let rec exec t ~ectx ~eenv =
     let+ () = exec_echo eenv.stdout_to (Digest.to_string_raw s) in
     Done
   | Diff ({ optional; file1; file2; mode } as diff) ->
+    let f1, f2 = Path.to_string file1, Path.to_string file2 in
+    Printf.printf "\nLet's diff %s and %s\n%!" f1 f2;
     let remove_intermediate_file () =
       if optional then
         try Path.unlink file2 with Unix.Unix_error (ENOENT, _, _) -> ()
@@ -300,6 +303,8 @@ let rec exec t ~ectx ~eenv =
         | None -> false
         | Some (_, file) -> Path.exists (Path.source file)
       in
+      Printf.printf "\n%s and %s differ\n%!" f1 f2;
+      (try
       let+ () =
         Fiber.finalize
           (fun () ->
@@ -310,15 +315,19 @@ let rec exec t ~ectx ~eenv =
                     (Path.to_string_maybe_quoted file2)
                 ]
             else
+              Printf.printf "\nMode isn't binary\n%!";
               Print_diff.print file1 file2
                 ~skip_trailing_cr:(mode = Text && Sys.win32))
           ~finally:(fun () ->
+            Printf.printf "\nLets finalize\n%!";
             ( match optional with
             | false ->
+              Printf.printf "\nDiff isn't optional\n%!";
               if
                 is_copied_from_source_tree file1
                 && not (is_copied_from_source_tree file2)
               then
+                Printf.printf "\n%s is from source tree but %s isn't\n%!" f1 f2;
                 Promotion.File.register_dep
                   ~source_file:
                     (snd
@@ -337,7 +346,11 @@ let rec exec t ~ectx ~eenv =
                 remove_intermediate_file () );
             Fiber.return ())
       in
+      Printf.printf "\nI returned!\n%!";
       Done
+      with e ->
+        Printf.printf "\n I did not return :( %s\n%!" (Printexc.to_string e);
+        raise e)
   | Merge_files_into (sources, extras, target) ->
     let lines =
       List.fold_left

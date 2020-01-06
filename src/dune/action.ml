@@ -139,6 +139,32 @@ module Unresolved = struct
         | Search (loc, s) -> Ok (f loc s))
 end
 
+let to_string t =
+  match t with
+  | Chdir _ -> "Chdir"
+  | Setenv _ -> "Setenv"
+  | Redirect_out _ -> "Redirect_out"
+  | Redirect_in _ -> "Redirect_in"
+  | Ignore _ -> "Ignore"
+  | With_accepted_exit_codes _ -> "With_accepted_exit_codes"
+  | Progn _ -> "Progn"
+  | Run _ -> "Run"
+  | Dynamic_run _ -> "Dynamic_run"
+  | Echo _ -> "Echo"
+  | Cat _ -> "Cat"
+  | Copy _ -> "Copy"
+  | Symlink _ -> "Symlink"
+  | Copy_and_add_line_directive _ -> "Copy_and_add_line_directive"
+  | System _ -> "System"
+  | Bash _ -> "Bash"
+  | Write_file _ -> "Write_file"
+  | Rename _ -> "Rename"
+  | Remove_tree _ -> "Remove_tree"
+  | Mkdir _ -> "Mkdir"
+  | Digest_files _ -> "Digest_files"
+  | Diff _ -> "Diff"
+  | Merge_files_into _ -> "Merge_files_into"
+
 let fold_one_step t ~init:acc ~f =
   match t with
   | Chdir (_, t)
