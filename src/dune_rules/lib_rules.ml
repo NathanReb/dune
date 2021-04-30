@@ -26,7 +26,11 @@ let build_lib (lib : Library.t) ~native_archives ~sctx ~expander ~flags ~dir
             let lname =
               "-l" ^ Foreign.Archive.(name archive |> Name.to_string)
             in
-            let cclib = [ "-cclib"; lname ] in
+            let cclib =
+              [ "-cclib" ; "-Wl,--whole-archive"
+              ; "-cclib"; lname
+              ; "-cclib"; "-Wl,--no-whole-archive" ]
+            in
             let dllib = [ "-dllib"; lname ] in
             match mode with
             | Native -> cclib
